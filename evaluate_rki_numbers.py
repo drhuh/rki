@@ -14,6 +14,10 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 from collections import defaultdict
 import datetime
+from time import process_time
+
+def rec_dd():
+    return defaultdict(rec_dd)
 
 parser = argparse.ArgumentParser(description='Analyze tasks in time sheet.')
 parser.add_argument("-i", "--inputfile", required=True, type=str, help='name of time sheet file')
@@ -21,9 +25,10 @@ parser.add_argument("-i", "--inputfile", required=True, type=str, help='name of 
 args = vars(parser.parse_args())
 reportfile = args["inputfile"]
 
+t1_start = process_time()
+
 i = 0
 tage = []
-#countries = defaultdict(lambda: "")
 countries = {}
 nof_rows = 0
 with open(reportfile, newline='') as csvfile:
@@ -34,7 +39,7 @@ with open(reportfile, newline='') as csvfile:
             continue
         country = row[2]
         cnt_infect = int(row[6])
-        cnt_death = int(row[7])
+        # cnt_death = int(row[7])
         cnt_date = datetime.datetime.strptime(row[8], '%Y/%m/%d %H:%M:%S')
         # print(type(row[8]), type(cnt_date))
         # print(country, cnt_infect, cnt_death, cnt_date)
@@ -44,7 +49,9 @@ with open(reportfile, newline='') as csvfile:
             countries[country][cnt_date] = cnt_infect
         else:
             countries[country][cnt_date] += cnt_infect
+        # countries[country][cnt_date] += cnt_infect
 
+label_handles = {}
 for country in countries:
     nof_rows = len(countries[country])
     # print(country, len(countries[country]), countries[country])
@@ -56,11 +63,24 @@ for country in countries:
         tage.append(key)
         last_sum += countries[country][key]
         infects.append(last_sum)
-    #print(countries[country])
+    # print(country, last_sum)
     # x = np.linspace(1, nof_rows, nof_rows)
     y = np.array(infects)
     #plt.scatter(tage, y, label=country)
-    plt.plot(tage, y, label=country)
+    handle, = plt.plot(tage, y, label=country)
+    label_handles[handle] = last_sum
 
-plt.legend()
+# print(label_handles)
+sorted_handles = sorted(label_handles.items(), key=lambda x: x[1], reverse=True)
+# print(sorted_handles)
+handles = []
+for handle in sorted_handles:
+    handles.append(handle[0])
+# print(handles)
+plt.legend(handles=handles)
+
+t1_stop = process_time()
+print("Elapsed time during the whole program in seconds:", t1_stop-t1_start)
+
 plt.show()
+
