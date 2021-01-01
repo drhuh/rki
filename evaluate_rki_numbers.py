@@ -29,7 +29,7 @@ t1_start = process_time()
 
 i = 0
 tage = []
-countries = {}
+countries = defaultdict(lambda : defaultdict(dict))
 nof_rows = 0
 with open(reportfile, newline='') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
@@ -40,7 +40,8 @@ with open(reportfile, newline='') as csvfile:
         country = row[2]
         cnt_infect = int(row[6])
         # cnt_death = int(row[7])
-        cnt_date = datetime.datetime.strptime(row[8], '%Y/%m/%d %H:%M:%S')
+        # cnt_date = datetime.datetime.strptime(row[8], '%Y/%m/%d %H:%M:%S')
+        cnt_date = row[8]
         # print(type(row[8]), type(cnt_date))
         # print(country, cnt_infect, cnt_death, cnt_date)
         if country not in countries:
@@ -60,7 +61,7 @@ for country in countries:
     last_sum = 0
     for key in sorted(countries[country]):
         # print(key, countries[country][key])
-        tage.append(key)
+        tage.append(datetime.datetime.strptime(key, '%Y/%m/%d %H:%M:%S'))
         last_sum += countries[country][key]
         infects.append(last_sum)
     # print(country, last_sum)
