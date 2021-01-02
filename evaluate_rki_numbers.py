@@ -13,11 +13,14 @@ import matplotlib.pyplot as plt
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 from collections import defaultdict
+from functools import partial
 import datetime
 from time import process_time
 
-def rec_dd():
-    return defaultdict(rec_dd)
+def rec_dd(depth=0):
+    if depth == 2:
+        return 0
+    return defaultdict(partial(rec_dd, depth + 1))
 
 parser = argparse.ArgumentParser(description='Analyze tasks in time sheet.')
 parser.add_argument("-i", "--inputfile", required=True, type=str, help='name of time sheet file')
@@ -29,7 +32,9 @@ t1_start = process_time()
 
 i = 0
 tage = []
-countries = defaultdict(lambda : defaultdict(dict))
+#countries = defaultdict(lambda : defaultdict(dict))
+#countries = AutoVivification()
+countries = rec_dd()
 nof_rows = 0
 with open(reportfile, newline='') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
@@ -44,13 +49,7 @@ with open(reportfile, newline='') as csvfile:
         cnt_date = row[8]
         # print(type(row[8]), type(cnt_date))
         # print(country, cnt_infect, cnt_death, cnt_date)
-        if country not in countries:
-            countries[country] = {}
-        if not cnt_date in countries[country]:
-            countries[country][cnt_date] = cnt_infect
-        else:
-            countries[country][cnt_date] += cnt_infect
-        # countries[country][cnt_date] += cnt_infect
+        countries[country][cnt_date] += cnt_infect
 
 label_handles = {}
 for country in countries:
