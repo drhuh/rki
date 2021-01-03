@@ -11,29 +11,44 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from pandas.plotting import register_matplotlib_converters
+
 register_matplotlib_converters()
 from collections import defaultdict
 from functools import partial
 import datetime
 from time import process_time
+import matplotlib.colors as colors
+import matplotlib._color_data as mcd
+
+MEAN_DAYS = 7
+
 
 def rec_dd(depth=0):
     if depth == 2:
         return 0
     return defaultdict(partial(rec_dd, depth + 1))
 
+
+def moving_average(x, w):
+    return np.convolve(x, np.ones(w), 'valid') / w
+
+
 parser = argparse.ArgumentParser(description='Analyze tasks in time sheet.')
 parser.add_argument("-i", "--inputfile", required=True, type=str, help='name of time sheet file')
+parser.add_argument("-d", "--delta", required=False, action='store_true', help='plot delta instead of absolute numbers')
+parser.add_argument("-r", "--relative", required=False, action='store_true', help='plot delta relative')
 
 args = vars(parser.parse_args())
 reportfile = args["inputfile"]
+plotdelta = args["delta"]
+plotrelative = args["relative"]
 
 t1_start = process_time()
 
 i = 0
 tage = []
-#countries = defaultdict(lambda : defaultdict(dict))
-#countries = AutoVivification()
+# countries = defaultdict(lambda : defaultdict(dict))
+# countries = AutoVivification()
 countries = rec_dd()
 nof_rows = 0
 with open(reportfile, newline='') as csvfile:
@@ -52,22 +67,39 @@ with open(reportfile, newline='') as csvfile:
         countries[country][cnt_date] += cnt_infect
 
 label_handles = {}
+#lotsa_colors = list(colors.get_named_colors_mapping().values())
+lotsa_colors = list(mcd.XKCD_COLORS.values())
+print(lotsa_colors)
+my_color_list = ('lightcoral', 'red', 'peru', 'darkorange', 'gold', 'olivedrab', 'greenyellow', 'forestgreen',
+                 'teal', 'cyan', 'dodgerblue', 'blue', 'darkviolet', 'magenta', 'mediumvioletred', 'crimson')
+i = -1
 for country in countries:
+    i += 1
     nof_rows = len(countries[country])
     # print(country, len(countries[country]), countries[country])
     tage = []
     infects = []
+    delta = []
     last_sum = 0
     for key in sorted(countries[country]):
         # print(key, countries[country][key])
         tage.append(datetime.datetime.strptime(key, '%Y/%m/%d %H:%M:%S'))
         last_sum += countries[country][key]
         infects.append(last_sum)
+        if plotdelta:
+            delta.append(countries[country][key])
     # print(country, last_sum)
     # x = np.linspace(1, nof_rows, nof_rows)
-    y = np.array(infects)
-    #plt.scatter(tage, y, label=country)
-    handle, = plt.plot(tage, y, label=country)
+    if plotdelta:
+        if plotrelative:
+            delta[:] = [x / last_sum for x in delta]
+        y = np.array(moving_average(delta, MEAN_DAYS))
+        # handle, = plt.plot(tage[MEAN_DAYS-1:], y, label=country, color='#204080')
+        handle, = plt.plot(tage[MEAN_DAYS - 1:], y, label=country, color=my_color_list[i])
+    else:
+        y = np.array(infects)
+        handle, = plt.plot(tage, y, label=country)
+    # plt.scatter(tage, y, label=country)
     label_handles[handle] = last_sum
 
 # print(label_handles)
@@ -80,7 +112,6 @@ for handle in sorted_handles:
 plt.legend(handles=handles)
 
 t1_stop = process_time()
-print("Elapsed time during the whole program in seconds:", t1_stop-t1_start)
+print("Elapsed time during the whole program in seconds:", t1_stop - t1_start)
 
 plt.show()
-
