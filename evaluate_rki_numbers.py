@@ -67,9 +67,9 @@ with open(reportfile, newline='') as csvfile:
         countries[country][cnt_date] += cnt_infect
 
 label_handles = {}
-#lotsa_colors = list(colors.get_named_colors_mapping().values())
-lotsa_colors = list(mcd.XKCD_COLORS.values())
-print(lotsa_colors)
+# lotsa_colors = list(colors.get_named_colors_mapping().values())
+# lotsa_colors = list(mcd.XKCD_COLORS.values())
+# print(lotsa_colors)
 my_color_list = ('lightcoral', 'red', 'peru', 'darkorange', 'gold', 'olivedrab', 'greenyellow', 'forestgreen',
                  'teal', 'cyan', 'dodgerblue', 'blue', 'darkviolet', 'magenta', 'mediumvioletred', 'crimson')
 i = -1
@@ -98,7 +98,7 @@ for country in countries:
         handle, = plt.plot(tage[MEAN_DAYS - 1:], y, label=country, color=my_color_list[i])
     else:
         y = np.array(infects)
-        handle, = plt.plot(tage, y, label=country)
+        handle, = plt.plot(tage, y, label="{:s} ({:d})".format(country, last_sum), color=my_color_list[i])
     # plt.scatter(tage, y, label=country)
     label_handles[handle] = last_sum
 
