@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+# prerequisites
+# if using colors from matplotlib
+#   pip3 install matplotlib
+
 # Datenquellen
 # https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0/data?page=10
 # https://www.arcgis.com/home/item.html?id=f10774f1c63e40168479a1feb6c7ca74
@@ -17,8 +21,8 @@ from collections import defaultdict
 from functools import partial
 import datetime
 from time import process_time
-import matplotlib.colors as colors
-import matplotlib._color_data as mcd
+# import matplotlib.colors as colors
+# import matplotlib._color_data as mcd
 
 MEAN_DAYS = 7
 
