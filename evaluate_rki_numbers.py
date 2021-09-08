@@ -1,14 +1,22 @@
 #!/usr/bin/python3
 
 # prerequisites
+# pip3 install tqdm
 # if using colors from matplotlib
 #   pip3 install matplotlib
 
 # Datenquellen
 # https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0/data?page=10
 # https://www.arcgis.com/home/item.html?id=f10774f1c63e40168479a1feb6c7ca74
+#
+# Die Daten selbst kann man direkt mit
+#
+# wget https://www.arcgis.com/sharing/rest/content/items/f10774f1c63e40168479a1feb6c7ca74/data
+#
+# herunterladen
 
 # Legende außerhalb: siehe https://pythonspot.com/matplotlib-legend/
+# Download siehe https://stackoverflow.com/questions/15644964/python-progress-bar-and-downloads
 
 import argparse
 import csv
@@ -20,10 +28,13 @@ register_matplotlib_converters()
 from collections import defaultdict
 from functools import partial
 import datetime
+import requests
 from time import process_time
+from tqdm import tqdm
 # import matplotlib.colors as colors
 # import matplotlib._color_data as mcd
 
+DATA_URL = "https://www.arcgis.com/sharing/rest/content/items/f10774f1c63e40168479a1feb6c7ca74/data"
 MEAN_DAYS = 7
 
 
@@ -37,15 +48,36 @@ def moving_average(x, w):
     return np.convolve(x, np.ones(w), 'valid') / w
 
 
+def download(url: str, fname: str):
+    resp = requests.get(url, stream=True)
+    total = int(resp.headers.get('content-length', 0))
+    with open(fname, 'wb') as file, tqdm(
+        desc=fname,
+        total=total,
+        unit='iB',
+        unit_scale=True,
+        unit_divisor=1024,
+    ) as bar:
+        for data in resp.iter_content(chunk_size=1024):
+            size = file.write(data)
+            bar.update(size)
+
+
 parser = argparse.ArgumentParser(description='Analyze tasks in time sheet.')
-parser.add_argument("-i", "--inputfile", required=True, type=str, help='name of time sheet file')
 parser.add_argument("-d", "--delta", required=False, action='store_true', help='plot delta instead of absolute numbers')
+parser.add_argument("-f", "--fetch", required=False, action='store_true',
+                    help='fetch new data set and store it in file name defined by -i option')
+parser.add_argument("-i", "--inputfile", required=True, type=str, help='name of time sheet file')
 parser.add_argument("-r", "--relative", required=False, action='store_true', help='plot delta relative')
 
 args = vars(parser.parse_args())
-reportfile = args["inputfile"]
 plotdelta = args["delta"]
+fetchnewdata = args["fetch"]
+reportfile = args["inputfile"]
 plotrelative = args["relative"]
+
+if fetchnewdata:
+    download(DATA_URL, reportfile)
 
 t1_start = process_time()
 
