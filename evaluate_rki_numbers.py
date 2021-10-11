@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
 # prerequisites
-# pip3 install tqdm
+# sudo pip3 install pandas
+# sudo pip3 install tqdm
 # if using colors from matplotlib
-#   pip3 install matplotlib
+#   sudo pip3 install matplotlib
 
 # Datenquellen
 # https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0/data?page=10
