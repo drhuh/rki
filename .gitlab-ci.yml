@@ -41,7 +41,8 @@ run:
 
 pages:
   script:
-    - mv saved.png public/
+    - ls -l
+    - mv save.png public/
   artifacts:
     paths:
       - public
