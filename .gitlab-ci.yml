@@ -28,12 +28,11 @@ before_script:
   - pip install virtualenv
   - virtualenv venv
   - source venv/bin/activate
-  
+  - pip install matplotlib numpy pandas requests tqdm
 
 run:
   script:
     # run the command here
-    - pip install matplotlib numpy pandas requests tqdm
     - pip -V
     - pip list
     - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s
@@ -43,6 +42,8 @@ run:
 
 pages:
   script:
+    - ls -l
+    - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s
     - ls -l
     - mv save.png public/
   artifacts:
