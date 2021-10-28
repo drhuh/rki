@@ -33,7 +33,7 @@ before_script:
 run:
   script:
     # run the command here
-    - pip install matplotlib numpy pandas tqdm
+    - pip install matplotlib numpy pandas requests tqdm
     - pip -V
     - pip list
     - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s
