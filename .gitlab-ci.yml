@@ -28,6 +28,7 @@ before_script:
   - pip install virtualenv matplotlib numpy pandas tqdm
   - virtualenv venv
   - source venv/bin/activate
+  - pip install matplotlib numpy pandas tqdm
 
 run:
   script:
