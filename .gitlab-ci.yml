@@ -31,7 +31,6 @@ before_script:
 
 run:
   script:
-    - python setup.py bdist_wheel
     # run the command here
     - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s
 
