@@ -26,9 +26,9 @@ cache:
 before_script:
   - python -V  # Print out python version for debugging
   - pip install virtualenv
-  - pip install matplotlib numpy pandas tqdm
   - virtualenv venv
   - source venv/bin/activate
+  - pip install matplotlib numpy pandas tqdm
 
 run:
   script:
