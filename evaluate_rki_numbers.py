@@ -103,6 +103,9 @@ with open(reportfile, newline='') as csvfile:
         # print(country, cnt_infect, cnt_death, cnt_date)
         countries[country][cnt_date] += cnt_infect
 
+t1_read = process_time()
+print("Elapsed time for reading csv file in seconds:", t1_read - t1_start)
+
 label_handles = {}
 # lotsa_colors = list(colors.get_named_colors_mapping().values())
 # lotsa_colors = list(mcd.XKCD_COLORS.values())
