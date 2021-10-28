@@ -25,14 +25,15 @@ cache:
 
 before_script:
   - python -V  # Print out python version for debugging
-  - pip install virtualenv matplotlib numpy pandas tqdm
+  - pip install virtualenv
   - virtualenv venv
   - source venv/bin/activate
-  - pip install matplotlib numpy pandas tqdm
+  
 
 run:
   script:
     # run the command here
+    - pip install matplotlib numpy pandas tqdm
     - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s
 
 
