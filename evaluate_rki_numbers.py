@@ -37,7 +37,9 @@ from tqdm import tqdm
 
 DATA_URL = "https://www.arcgis.com/sharing/rest/content/items/f10774f1c63e40168479a1feb6c7ca74/data"
 MEAN_DAYS = 7
-
+MY_DPI=100
+DEFAULT_X_GEOMETRY = 1024
+DEFAULT_Y_GEOMETRY = 768
 
 def rec_dd(depth=0):
     if depth == 2:
@@ -68,14 +70,31 @@ parser = argparse.ArgumentParser(description='Analyze tasks in time sheet.')
 parser.add_argument("-d", "--delta", required=False, action='store_true', help='plot delta instead of absolute numbers')
 parser.add_argument("-f", "--fetch", required=False, action='store_true',
                     help='fetch new data set and store it in file name defined by -i option')
+parser.add_argument("-g", "--geometry", required=False, type=str,
+                    help='geometry of saved picture, default %dx%d'.format(DEFAULT_X_GEOMETRY, DEFAULT_Y_GEOMETRY))
 parser.add_argument("-i", "--inputfile", required=True, type=str, help='name of time sheet file')
 parser.add_argument("-r", "--relative", required=False, action='store_true', help='plot delta relative')
+parser.add_argument("-s", "--saveplot", required=False, action='store_true', help='save figure in .png file instead')
 
 args = vars(parser.parse_args())
 plotdelta = args["delta"]
 fetchnewdata = args["fetch"]
+geometry = args["geometry"]
 reportfile = args["inputfile"]
 plotrelative = args["relative"]
+saveplot = args["saveplot"]
+
+if geometry:
+    if geometry.count('x') != 1:
+        print('geometry must have the format VALUExVALUE, e.g. 1024x768')
+        exit(-1)
+    geomvals=geometry.split("x")
+    X_GEOMETRY=int(geomvals[0])
+    Y_GEOMETRY=int(geomvals[1])
+else:
+    X_GEOMETRY=DEFAULT_X_GEOMETRY
+    Y_GEOMETRY=DEFAULT_Y_GEOMETRY
+
 
 if fetchnewdata:
     download(DATA_URL, reportfile)
@@ -106,6 +125,7 @@ with open(reportfile, newline='') as csvfile:
 t1_read = process_time()
 print("Elapsed time for reading csv file in seconds:", t1_read - t1_start)
 
+fig = plt.figure(figsize=(X_GEOMETRY/MY_DPI, Y_GEOMETRY/MY_DPI), dpi=MY_DPI)
 label_handles = {}
 # lotsa_colors = list(colors.get_named_colors_mapping().values())
 # lotsa_colors = list(mcd.XKCD_COLORS.values())
@@ -154,4 +174,7 @@ plt.legend(handles=handles)
 t1_stop = process_time()
 print("Elapsed time during the whole program in seconds:", t1_stop - t1_start)
 
-plt.show()
+if saveplot:
+    plt.savefig('save.png')
+else:
+    plt.show()
