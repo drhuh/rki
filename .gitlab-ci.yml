@@ -34,6 +34,8 @@ run:
   script:
     # run the command here
     - pip install matplotlib numpy pandas tqdm
+    - pip -V
+    - pip list
     - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s
 
 
