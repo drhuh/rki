@@ -39,3 +39,11 @@ run:
     - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s
 
 
+pages:
+  script:
+    - mv saved.png public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
