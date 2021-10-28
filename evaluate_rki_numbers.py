@@ -74,7 +74,7 @@ parser.add_argument("-g", "--geometry", required=False, type=str,
                     help='geometry of saved picture, default %dx%d'.format(DEFAULT_X_GEOMETRY, DEFAULT_Y_GEOMETRY))
 parser.add_argument("-i", "--inputfile", required=True, type=str, help='name of time sheet file')
 parser.add_argument("-r", "--relative", required=False, action='store_true', help='plot delta relative')
-parser.add_argument("-s", "--saveplot", required=False, action='store_true', help='save figure in .png file instead')
+parser.add_argument("-s", "--saveplot", required=False, type=str, help='save figure in png file instead')
 
 args = vars(parser.parse_args())
 plotdelta = args["delta"]
@@ -175,6 +175,6 @@ t1_stop = process_time()
 print("Elapsed time during the whole program in seconds:", t1_stop - t1_start)
 
 if saveplot:
-    plt.savefig('save.png')
+    plt.savefig(saveplot)
 else:
     plt.show()

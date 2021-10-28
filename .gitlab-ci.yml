@@ -33,21 +33,16 @@ before_script:
 run:
   script:
     # run the command here
-    - pip -V
-    - pip list
-    - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s
-    - pwd
-    - ls -l
+    - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s public/save.png -g 2000x1000
 
-
-pages:
-  script:
-    - ls -l
-    - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s
-    - ls -l
-    - mv save.png public/
-  artifacts:
-    paths:
-      - public
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+# pages:
+#   script:
+#     - ls -l
+#     - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s
+#     - ls -l
+#     - mv save.png public/
+#   artifacts:
+#     paths:
+#       - public
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
