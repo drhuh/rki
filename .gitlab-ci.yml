@@ -37,6 +37,8 @@ run:
     - pip -V
     - pip list
     - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s
+    - pwd
+    - ls -l
 
 
 pages:
