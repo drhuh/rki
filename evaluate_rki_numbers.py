@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
-# prerequisites
-# sudo pip3 install pandas
-# sudo pip3 install tqdm
-# if using colors from matplotlib
-#   sudo pip3 install matplotlib
+# prerequisites: see requirements.txt
+# sudo pip3 install -r requirements.txt
 
 # Datenquellen
 # https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0/data?page=10
@@ -23,9 +20,10 @@ import argparse
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
-from pandas.plotting import register_matplotlib_converters
 
-register_matplotlib_converters()
+# from pandas.plotting import register_matplotlib_converters
+# register_matplotlib_converters()
+
 from collections import defaultdict
 from functools import partial
 import datetime
