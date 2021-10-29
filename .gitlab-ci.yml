@@ -28,7 +28,7 @@ before_script:
   - pip install virtualenv
   - virtualenv venv
   - source venv/bin/activate
-  - pip install matplotlib numpy pandas requests tqdm
+  - pip install -r requirements.txt
 
 # run:
 #   script:
