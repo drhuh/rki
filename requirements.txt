@@ -1,0 +1,4 @@
+matplotlib      # plot picture
+numpy           # moving average
+requests        # download of cvs file
+tqdm            # progress bar
