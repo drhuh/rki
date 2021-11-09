@@ -168,7 +168,9 @@ for handle in sorted_handles:
     handles.append(handle[0])
 # print(handles)
 plt.legend(handles=handles)
-plt.title("Total number of infections until {:s}".format(tage[-1].date().strftime("%d.%m.%Y")))
+plt.title("Total number of infections until {:s}".format(tage[-1].date().strftime("%d %b %Y")))
+plt.xlabel("Date")
+plt.ylabel("Number of infections")
 
 t1_stop = process_time()
 print("Elapsed time during the whole program in seconds:", t1_stop - t1_start)
