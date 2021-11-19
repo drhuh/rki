@@ -71,6 +71,7 @@ parser.add_argument("-f", "--fetch", required=False, action='store_true',
 parser.add_argument("-g", "--geometry", required=False, type=str,
                     help='geometry of saved picture, default %dx%d'.format(DEFAULT_X_GEOMETRY, DEFAULT_Y_GEOMETRY))
 parser.add_argument("-i", "--inputfile", required=True, type=str, help='name of time sheet file')
+parser.add_argument("-m", "--mortality", required=False, action='store_true', help='mortality instead of infections')
 parser.add_argument("-p", "--percentage", required=False, type=str,
                     help='plot percentage values based on provided file')
 parser.add_argument("-s", "--saveplot", required=False, type=str, help='save figure in png file instead')
@@ -80,6 +81,7 @@ plotdelta = args["delta"]
 fetchnewdata = args["fetch"]
 geometry = args["geometry"]
 reportfile = args["inputfile"]
+mortalitiy = args["mortality"]
 percentagefile = args["percentage"]
 saveplot = args["saveplot"]
 
@@ -93,6 +95,12 @@ if geometry:
 else:
     X_GEOMETRY=DEFAULT_X_GEOMETRY
     Y_GEOMETRY=DEFAULT_Y_GEOMETRY
+
+
+if mortalitiy:
+    description = "Sterbefälle"
+else:
+    description = "Infektionen"
 
 
 if fetchnewdata:
@@ -124,8 +132,10 @@ with open(reportfile, newline='') as csvfile:
         if i == 1:
             continue
         country = row[2]
-        cnt_infect = int(row[6])
-        # cnt_death = int(row[7])
+        if mortalitiy:
+            cnt_infect = int(row[7])
+        else:
+            cnt_infect = int(row[6])
         # cnt_date = datetime.datetime.strptime(row[8], '%Y/%m/%d %H:%M:%S')
         cnt_date = row[8]
         # print(type(row[8]), type(cnt_date))
@@ -186,7 +196,7 @@ for country in countries:
                                color=my_color_list[i])
         else:
             handle, = plt.plot(tage, y,
-                               label="{:s} ({:.1f} % ({:d} / {:d}))".
+                               label="{:s} ({:.2f} % ({:d} / {:d}))".
                                format(country, last_value, total_sum, inhabitants[ country]),
                                color=my_color_list[i])
     else:
@@ -202,37 +212,41 @@ sorted_handles = sorted(label_handles.items(), key=lambda x: x[1], reverse=True)
 handles = []
 if percentagefile:
     if plotdelta:
-        leghandle = plt.plot([], [], ' ', label="Legende: Bundesland (Fälle in % (Infektionen pro Tag / Einwohner))")
+        leghandle = plt.plot([], [], ' ', label="Legende: Bundesland (Fälle in % ({:s} pro Tag / Einwohner))".
+                             format(description))
     else:
-        leghandle = plt.plot([], [], ' ', label="Legende: Bundesland (Fälle in % (Infektionen gesamt / Einwohner))")
+        leghandle = plt.plot([], [], ' ', label="Legende: Bundesland (Fälle in % ({:s} gesamt / Einwohner))".
+                             format(description))
 else:
-    leghandle = plt.plot([], [], ' ', label="Legende: Bundesland (Anzahl der Infektionen)")
+    leghandle = plt.plot([], [], ' ', label="Legende: Bundesland (Anzahl der {:s})".format(description))
 handles.append(leghandle[0])
+
 for handle in sorted_handles:
     handles.append(handle[0])
 # print(handles)
 plt.legend(handles=handles)
+
 if plotdelta:
     if percentagefile:
-        titlestring = "Infektionen pro Tag bezogen auf die Einwohner des Bundeslandes (in %) bis zum {:s}".\
-            format(tage[-1].date().strftime("%d %b %Y"))
+        titlestring = "{:s} pro Tag bezogen auf die Einwohner des Bundeslandes (in %) bis zum {:s}".\
+            format(description,tage[-1].date().strftime("%d %b %Y"))
     else:
-        titlestring = "Infektionen pro Tag je Bundesland bis zum {:s}, Summe = {:d} (letzer Tag)".\
-            format(tage[-1].date().strftime("%d %b %Y"),label_sum)
+        titlestring = "{:s} pro Tag je Bundesland bis zum {:s}, Summe = {:d} (letzer Tag)".\
+            format(description,tage[-1].date().strftime("%d %b %Y"),label_sum)
 else:
     if percentagefile:
-        titlestring = "Infektionen bezogen auf die Einwohner des Bundeslandes (in %) bis zum {:s}".\
-            format(tage[-1].date().strftime("%d %b %Y"))
+        titlestring = "{:s} bezogen auf die Einwohner des Bundeslandes (in %) bis zum {:s}".\
+            format(description,tage[-1].date().strftime("%d %b %Y"))
     else:
-        titlestring = "Infektionen je Bundesland bis zum {:s}, Summe = {:d}".\
-            format(tage[-1].date().strftime("%d %b %Y"),label_sum)
+        titlestring = "{:s} je Bundesland bis zum {:s}, Summe = {:d}".\
+            format(description,tage[-1].date().strftime("%d %b %Y"),label_sum)
 
 plt.title(titlestring)
-plt.xlabel("Date")
+plt.xlabel("Datum")
 if percentagefile:
-    plt.ylabel("Infektionen bezogenauf die Einwohner pro Bundesland (in %)")
+    plt.ylabel("{:s} bezogenauf die Einwohner pro Bundesland (in %)".format(description))
 else:
-    plt.ylabel("Anzahl der Infektionen")
+    plt.ylabel("Anzahl der {:s}".format(description))
 
 t1_stop = process_time()
 print("Elapsed time during the whole program in seconds: {:.2f}".format(t1_stop - t1_start))
