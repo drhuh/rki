@@ -35,7 +35,7 @@ from tqdm import tqdm
 
 DATA_URL = "https://www.arcgis.com/sharing/rest/content/items/f10774f1c63e40168479a1feb6c7ca74/data"
 MEAN_DAYS = 7
-MY_DPI=100
+MY_DPI = 100
 DEFAULT_X_GEOMETRY = 1024
 DEFAULT_Y_GEOMETRY = 768
 
@@ -71,7 +71,6 @@ parser.add_argument("-f", "--fetch", required=False, action='store_true',
 parser.add_argument("-g", "--geometry", required=False, type=str,
                     help='geometry of saved picture, default %dx%d'.format(DEFAULT_X_GEOMETRY, DEFAULT_Y_GEOMETRY))
 parser.add_argument("-i", "--inputfile", required=True, type=str, help='name of time sheet file')
-parser.add_argument("-r", "--relative", required=False, action='store_true', help='plot delta relative')
 parser.add_argument("-s", "--saveplot", required=False, type=str, help='save figure in png file instead')
 
 args = vars(parser.parse_args())
@@ -79,7 +78,6 @@ plotdelta = args["delta"]
 fetchnewdata = args["fetch"]
 geometry = args["geometry"]
 reportfile = args["inputfile"]
-plotrelative = args["relative"]
 saveplot = args["saveplot"]
 
 if geometry:
@@ -121,7 +119,7 @@ with open(reportfile, newline='') as csvfile:
         countries[country][cnt_date] += cnt_infect
 
 t1_read = process_time()
-print("Elapsed time for reading csv file in seconds:", t1_read - t1_start)
+print("Elapsed time for reading csv file in seconds: {:.2f}".format(t1_read - t1_start))
 
 fig = plt.figure(figsize=(X_GEOMETRY/MY_DPI, Y_GEOMETRY/MY_DPI), dpi=MY_DPI)
 label_handles = {}
@@ -131,6 +129,7 @@ label_handles = {}
 my_color_list = ('lightcoral', 'red', 'peru', 'darkorange', 'gold', 'olivedrab', 'greenyellow', 'forestgreen',
                  'teal', 'cyan', 'dodgerblue', 'blue', 'darkviolet', 'magenta', 'mediumvioletred', 'crimson')
 i = -1
+label_sum = 0
 for country in countries:
     i += 1
     nof_rows = len(countries[country])
@@ -142,23 +141,25 @@ for country in countries:
     for key in sorted(countries[country]):
         # print(key, countries[country][key])
         tage.append(datetime.datetime.strptime(key, '%Y/%m/%d %H:%M:%S'))
-        last_sum += countries[country][key]
-        infects.append(last_sum)
         if plotdelta:
             delta.append(countries[country][key])
+        else:
+            last_sum += countries[country][key]
+            infects.append(last_sum)
+
     # print(country, last_sum)
     # x = np.linspace(1, nof_rows, nof_rows)
     if plotdelta:
-        if plotrelative:
-            delta[:] = [x / last_sum for x in delta]
-        y = np.array(moving_average(delta, MEAN_DAYS))
-        # handle, = plt.plot(tage[MEAN_DAYS-1:], y, label=country, color='#204080')
-        handle, = plt.plot(tage[MEAN_DAYS - 1:], y, label=country, color=my_color_list[i])
+        y = np.array(delta)
+        last_value = delta[-1]
     else:
         y = np.array(infects)
-        handle, = plt.plot(tage, y, label="{:s} ({:d})".format(country, last_sum), color=my_color_list[i])
+        last_value = last_sum
+
+    handle, = plt.plot(tage, y, label="{:s} ({:d})".format(country, last_value), color=my_color_list[i])
     # plt.scatter(tage, y, label=country)
-    label_handles[handle] = last_sum
+    label_handles[handle] = last_value
+    label_sum += last_value
 
 # print(label_handles)
 sorted_handles = sorted(label_handles.items(), key=lambda x: x[1], reverse=True)
@@ -168,12 +169,18 @@ for handle in sorted_handles:
     handles.append(handle[0])
 # print(handles)
 plt.legend(handles=handles)
-plt.title("Total number of infections until {:s}".format(tage[-1].date().strftime("%d %b %Y")))
+if plotdelta:
+    titlestring = "Number of infections per day until {:s}, sum = {:d}".format(tage[-1].date().strftime("%d %b %Y"),
+                                                                               label_sum)
+else:
+    titlestring = "Total number of infections until {:s}, sum = {:d}".format(tage[-1].date().strftime("%d %b %Y"),
+                                                                             label_sum)
+plt.title(titlestring)
 plt.xlabel("Date")
 plt.ylabel("Number of infections")
 
 t1_stop = process_time()
-print("Elapsed time during the whole program in seconds:", t1_stop - t1_start)
+print("Elapsed time during the whole program in seconds: {:.2f}".format(t1_stop - t1_start))
 
 if saveplot:
     plt.savefig(saveplot)
