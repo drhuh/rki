@@ -37,7 +37,9 @@ before_script:
 
 pages:
   script:
-    - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s public/save.png -g 2000x1000
+    - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -s public/infections.png -g 2000x1000
+    - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -m -s public/mortality.png -g 2000x1000
+    - ./evaluate_rki_numbers.py -i RKI_COVID19.csv -f -m -p bundeslaender.csv -s public/mortality_rel.png -g 2000x1000
   artifacts:
     paths:
       - public
